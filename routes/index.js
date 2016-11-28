@@ -7,6 +7,18 @@ router.get('/', function(req, res, next) {
   res.json({ text: 'This is a text' });
 });
 
+/* GET notes list */
+router.get('/index', function(req, res, next) {
+  // res.json({ text: 'This is a text' });
+  var Person = mongoose.model('Person', yourSchema);
+
+  // find each person with a last name matching 'Ghost', selecting the `name` and `occupation` fields
+  Person.findOne({ 'name.last': 'Ghost' }, 'name occupation', function (err, person) {
+    if (err) return handleError(err);
+    console.log('%s %s is a %s.', person.name.first, person.name.last, person.occupation) // Space Ghost is a talk show host.
+  })
+});
+
 router.post('/', function (req, res) {
   res.json({text: 'POST request to the homepage'});
   console.log(req.body.title);
