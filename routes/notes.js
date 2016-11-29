@@ -33,6 +33,19 @@ router.patch('/:id', function(req, res, next) {
   });
 });
 
+router.delete('/:id', function(req, res, next){
+  var id = mongoose.Types.ObjectId(req.params.id);
+  Note.findByIdAndRemove(id, function(err, note){
+    if (err){
+      next();
+    }
+    else{
+      console.log('Note'+ note + 'is removed');
+    }
+  })
+});
+
+
 router.get('/', function(req, res, next){
   Note.find({}).sort({createdAt: -1}).exec(function(err, notes){
     if(err){
