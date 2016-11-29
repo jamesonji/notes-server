@@ -5,9 +5,21 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var mongoose = require('mongoose');
+mongoose.Promise = global.Promise
+
+mongoose.connect('mongodb://localhost/reactnotes');
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+  console.log('Connected to db reactnotes!');
+});
+
+var Schema = mongoose.Schema;
 
 var index = require('./routes/index');
 var users = require('./routes/users');
+var notes = require('./routes/notes');
 
 var app = express();
 
@@ -28,6 +40,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/users', users);
+app.use('/notes', notes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
