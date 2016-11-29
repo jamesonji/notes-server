@@ -23,7 +23,7 @@ router.post('/', function (req, res) {
 
 router.patch('/:id', function(req, res, next) {
   var id = mongoose.Types.ObjectId(req.params.id);
-  Note.findByIdAndUpdate(id, { $set: { content: req.body.content }}, { new: true }, function (err, note) {
+  Note.findByIdAndUpdate(id, { $set: {title: req.body.title, content: req.body.content }}, { new: true }, function (err, note) {
     if (err){
       next();
     }
