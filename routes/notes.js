@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var mongoose = require('mongoose');
 var Note = require('../models/notes');
 
 router.post('/', function (req, res) {
@@ -19,6 +20,18 @@ router.post('/', function (req, res) {
     }
   });
 })
+
+router.patch('/:id', function(req, res, next) {
+  var id = mongoose.Types.ObjectId(req.params.id);
+  Note.findByIdAndUpdate(id, { $set: { content: req.body.content }}, { new: true }, function (err, note) {
+    if (err){
+      next();
+    }
+    else{
+      console.log('Update successfully');
+    }
+  });
+});
 
 router.get('/', function(req, res, next){
   Note.find({}).sort({createdAt: -1}).exec(function(err, notes){
