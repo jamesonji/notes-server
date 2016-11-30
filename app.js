@@ -7,7 +7,8 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var passport = require('passport');
-var session = require('express-session')
+var session = require('express-session');
+var bCrypt = require('bcrypt-nodejs');
 var LocalStrategy = require('passport-local').Strategy;
 
 // >>>>>> Mongoose >>>>>>
@@ -23,8 +24,10 @@ db.once('open', function() {
 var index = require('./routes/index');
 var users = require('./routes/users');
 var notes = require('./routes/notes');
+var sessions = require('./routes/sessions');
 
 var app = express();
+
 // Use cors to allow outcoming requests
 app.use(cors());
 // enable passport and session
@@ -50,22 +53,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // >>>>>> Passport >>>>>
-var User = require('./models.users.js');
-
-passport.use(new LocalStrategy(
-  function(email, password, done) {
-    User.findOne({ email: email }, function (err, user) {
-      if (err) { return done(err); }
-      if (!user) {
-        return done(null, false, { message: 'Incorrect email.' });
-      }
-      if (!user.validPassword(password)) {
-        return done(null, false, { message: 'Incorrect password.' });
-      }
-      return done(null, user);
-    });
-  }
-));
+var User = require('./models/users.js');
 
 passport.serializeUser(function(user, done) {
   done(null, user.id);
@@ -77,10 +65,74 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
+passport.use('login', new LocalStrategy(
+  function(email, password, done) {
+    User.findOne({ email: email }, function (err, user) {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, { message: 'Incorrect email.' });
+      }
+      if (!user.validPassword(user, password)) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    });
+  }
+));
+
+passport.use('signup', new LocalStrategy(
+  function(req, email, password, done) {
+    findOrCreateUser = function(){
+      // find a user in Mongo with provided username
+      User.findOne({'email': email},function(err, user) {
+        // In case of any error return
+        if (err){
+          console.log('Error in SignUp: '+err);
+          return done(err);
+        }
+        // already exists
+        if (user) {
+          console.log('User already exists');
+          return done(null, false, {message:'User Already Exists'});
+        } else {
+          // if there is no user with that email
+          // create the user
+          var newUser = new User();
+          // set the user's local credentials
+          newUser.email = email;
+          newUser.password = createHash(password);
+          newUser.username = req.param('username');
+          newUser.firstName = req.param('firstName');
+          newUser.lastName = req.param('lastName');
+ 
+          // save the user
+          newUser.save(function(err) {
+            if (err){
+              console.log('Error in Saving user: '+err);  
+              throw err;  
+            }
+            console.log('User Registration succesful');    
+            return done(null, newUser);
+          });
+        }
+      });
+    };
+     
+    // Delay the execution of findOrCreateUser and execute 
+    // the method in the next tick of the event loop
+    process.nextTick(findOrCreateUser);
+  });
+);
+
+// Generates hash using bCrypt
+var createHash = function(password){
+ return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
+}
 
 app.use('/', index);
 app.use('/users', users);
 app.use('/notes', notes);
+app.use('/sessions', sessions);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -7,10 +7,16 @@ router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
 
-router.post('/login',
-  passport.authenticate('local', { successRedirect: '/',
-                                   failureRedirect: '/login',
-                                   failureFlash: false })
+router.post('/login', passport.authenticate( 'login', 
+                          {successRedirect: '/',
+                          failureRedirect: '/login',
+                          failureFlash: false })
 );
+                                    
+router.post('/signup', passport.authenticate('signup', {
+                                      successRedirect: '/',
+                                      failureRedirect: '/signup',
+                                      failureFlash : false 
+                                    }));
 
 module.exports = router;
