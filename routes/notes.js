@@ -40,7 +40,7 @@ router.delete('/:id', function(req, res, next){
       next();
     }
     else{
-      console.log('Note'+ note + 'is removed');
+      console.log('Note is removed');
     }
   })
 });
