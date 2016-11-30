@@ -6,7 +6,12 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
-mongoose.Promise = global.Promise
+var passport = require('passport');
+var session = require('express-session')
+var LocalStrategy = require('passport-local').Strategy;
+
+// >>>>>> Mongoose >>>>>>
+mongoose.Promise = global.Promise;
 
 mongoose.connect('mongodb://localhost/reactnotes');
 var db = mongoose.connection;
@@ -15,16 +20,22 @@ db.once('open', function() {
   console.log('Connected to db reactnotes!');
 });
 
-var Schema = mongoose.Schema;
-
 var index = require('./routes/index');
 var users = require('./routes/users');
 var notes = require('./routes/notes');
 
 var app = express();
-
 // Use cors to allow outcoming requests
 app.use(cors());
+// enable passport and session
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(session({
+  secret: 'Somesecret for testing',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: true }
+}))
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -37,6 +48,25 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// >>>>>> Passport >>>>>
+var User = require('./models.users.js');
+
+passport.use(new LocalStrategy(
+  function(email, password, done) {
+    User.findOne({ email: email }, function (err, user) {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, { message: 'Incorrect email.' });
+      }
+      if (!user.validPassword(password)) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    });
+  }
+));
+
 
 app.use('/', index);
 app.use('/users', users);
