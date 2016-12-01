@@ -45,6 +45,18 @@ router.delete('/:id', function(req, res, next){
   })
 });
 
+router.get('/:id', function(req, res, next){
+  var id = mongoose.Types.ObjectId(req.params.id);
+  Note.findById(id, function(err, note){
+    if (err){
+      next();
+    }
+    else{
+      console.log(note);
+      res.json({note: note});
+    }
+  })
+});
 
 router.get('/', function(req, res, next){
   Note.find({}).sort({createdAt: -1}).exec(function(err, notes){
