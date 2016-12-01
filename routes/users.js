@@ -15,8 +15,7 @@ router.post('/login', passport.authenticate( 'login',
                                     
 router.post('/signup', passport.authenticate('signup', {
                                       successRedirect: '/',
-                                      failureRedirect: '/signup',
+                                      failureRedirect: 'http://localhost:3000/login',
                                       failureFlash : false 
                                     }));
-
 module.exports = router;

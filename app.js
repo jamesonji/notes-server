@@ -30,6 +30,7 @@ var app = express();
 
 // Use cors to allow outcoming requests
 app.use(cors());
+
 // enable passport and session
 app.use(passport.initialize());
 app.use(passport.session());
@@ -65,9 +66,12 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
-passport.use('login', new LocalStrategy(
+passport.use('login', new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password'
+  },
   function(email, password, done) {
-    User.findOne({ email: email }, function (err, user) {
+    User.findOne({ 'email' : email }, function (err, user) {
       if (err) { return done(err); }
       if (!user) {
         return done(null, false, { message: 'Incorrect email.' });
@@ -80,11 +84,16 @@ passport.use('login', new LocalStrategy(
   }
 ));
 
-passport.use('signup', new LocalStrategy(
+passport.use('signup', new LocalStrategy( {
+    passReqToCallback : true,
+    usernameField: 'email'
+  },
   function(req, email, password, done) {
     findOrCreateUser = function(){
+      console.log(this);
       // find a user in Mongo with provided username
-      User.findOne({'email': email},function(err, user) {
+      console.log('the request is:' + req);
+      User.findOne({'email': email}, function (err, user) {
         // In case of any error return
         if (err){
           console.log('Error in SignUp: '+err);
@@ -93,22 +102,21 @@ passport.use('signup', new LocalStrategy(
         // already exists
         if (user) {
           console.log('User already exists');
-          return done(null, false, {message:'User Already Exists'});
+          return done(null, false, { message:'User Already Exists' });
         } else {
           // if there is no user with that email
           // create the user
+          console.log(req);
           var newUser = new User();
           // set the user's local credentials
           newUser.email = email;
           newUser.password = createHash(password);
-          newUser.username = req.param('username');
-          newUser.firstName = req.param('firstName');
-          newUser.lastName = req.param('lastName');
- 
+          newUser.firstName = req.body.firstName;
+          newUser.lastName = req.body.lastName;
           // save the user
           newUser.save(function(err) {
             if (err){
-              console.log('Error in Saving user: '+err);  
+              console.log('Error in Saving user: '+ err);  
               throw err;  
             }
             console.log('User Registration succesful');    
@@ -117,17 +125,14 @@ passport.use('signup', new LocalStrategy(
         }
       });
     };
-     
-    // Delay the execution of findOrCreateUser and execute 
-    // the method in the next tick of the event loop
     process.nextTick(findOrCreateUser);
-  });
+  })
 );
 
 // Generates hash using bCrypt
 var createHash = function(password){
  return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
-}
+};
 
 app.use('/', index);
 app.use('/users', users);
