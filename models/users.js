@@ -15,7 +15,7 @@ var UserSchema = new Schema({
 UserSchema.methods.validPassword = function(user, password){
   // todo: use hashed password using BCrypt or similar
   // return password === this.password;
-  return bCrypt.compareSync(password, user.password)
+  return bCrypt.compareSync(password, user.password);
 }
 
 var User = mongoose.model('User', UserSchema);
