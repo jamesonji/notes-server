@@ -97,13 +97,12 @@ passport.use('signup', new LocalStrategy( {
   },
   function(req, email, password, done) {
     findOrCreateUser = function(){
-      console.log(this);
       // find a user in Mongo with provided username
       console.log('the request is:' + req);
       User.findOne({'email': email}, function (err, user) {
         // In case of any error return
         if (err){
-          console.log('Error in SignUp: '+err);
+          console.log('Error in SignUp: ' + err);
           return done(err);
         }
         // already exists
@@ -140,6 +139,12 @@ passport.use('signup', new LocalStrategy( {
 var createHash = function(password){
  return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
 };
+
+
+app.get('/logout', function(req, res){
+                                      req.logout();
+                                      res.json({message: 'Logged out!'});
+                                    });
 
 app.use('/', index);
 app.use('/users', users);

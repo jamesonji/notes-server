@@ -41,6 +41,7 @@ router.delete('/:id', function(req, res, next){
     }
     else{
       console.log('Note is removed');
+      res.json({message: 'Removed note'});
     }
   })
 });
@@ -52,7 +53,6 @@ router.get('/:id', function(req, res, next){
       next();
     }
     else{
-      console.log(note);
       res.json({note: note});
     }
   })

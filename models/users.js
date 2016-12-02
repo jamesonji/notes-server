@@ -6,7 +6,7 @@ var UserSchema = new Schema({
   firstName: {type: String, trim: true },
   lastName: {type:String, trim: true },
   // userName: {type:String, trim: true },
-  email: {type:String, trim: true, require: true},
+  email: {type:String, trim: true, require: true, unique: true},
   password: {type: String, require: true}
 },{
   timestamps: true
