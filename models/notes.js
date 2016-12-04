@@ -18,8 +18,10 @@ var Schema = mongoose.Schema;
 var NoteSchema = new Schema({
   title: {type: String, trim: true, require: true},
   content: {type:String, trim: true, require: true},
+  plaintext: {type:String, trim: true, require: true},
   author:  {type: String, require: true},
-  date: { type: Date, default: Date.now },
+}, {
+  timestamps: true
 });
 
 module.exports = mongoose.model('Note', NoteSchema);
