@@ -4,16 +4,19 @@ var mongoose = require('mongoose');
 var Note = require('../models/notes');
 
 router.post('/', function (req, res) {
-  res.json({text: 'POST request to the homepage'});
+  res.json({text: req.body.plaintext});
   console.log(req.body.title);
+  console.log(req.body);
   var note = new Note({
     title: req.body.title,
     content: req.body.content,
+    plaintext: req.body.plaintext,
     author: req.body.author
   });
   
   note.save(function(err, note){
     if(err){
+      console.log(err);
       next();
     } else{
       console.log('Your note is saved');
