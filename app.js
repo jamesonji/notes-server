@@ -24,6 +24,7 @@ db.once('open', function() {
 var index = require('./routes/index');
 var users = require('./routes/users');
 var notes = require('./routes/notes');
+var note = require('./routes/note');
 var sessions = require('./routes/sessions');
 
 var app = express();
@@ -149,6 +150,7 @@ app.get('/logout', function(req, res){
 app.use('/', index);
 app.use('/users', users);
 app.use('/notes', notes);
+app.use('/note', notes);
 app.use('/sessions', sessions);
 
 // catch 404 and forward to error handler
