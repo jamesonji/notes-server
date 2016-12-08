@@ -150,7 +150,7 @@ app.get('/logout', function(req, res){
 app.use('/', index);
 app.use('/users', users);
 app.use('/notes', notes);
-app.use('/note', notes);
+app.use('/note', note);
 app.use('/sessions', sessions);
 
 // catch 404 and forward to error handler
