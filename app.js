@@ -14,7 +14,10 @@ var LocalStrategy = require('passport-local').Strategy;
 // >>>>>> Mongoose >>>>>>
 mongoose.Promise = global.Promise;
 
-mongoose.connect('mongodb://localhost/reactnotes');
+// mongoose.connect('mongodb://localhost/reactnotes');
+
+mongoose.connect(process.env.MONGODB_URI);
+
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
